@@ -12,17 +12,36 @@ export const parseJsonArray = (value: string) => {
   }
 };
 
+const logReadError = (operation: string, error: unknown) => {
+  console.error(`Database read failed in ${operation}. Check database environment variables and connectivity.`, error);
+};
+
 export async function getFeaturedProviders() {
-  return getDb().select().from(providers).where(eq(providers.featured, 1)).limit(6);
+  try {
+    return await getDb().select().from(providers).where(eq(providers.featured, 1)).limit(6);
+  } catch (error) {
+    logReadError('getFeaturedProviders', error);
+    return [];
+  }
 }
 
 export async function getAllProviders() {
-  return getDb().select().from(providers).orderBy(desc(providers.createdAt));
+  try {
+    return await getDb().select().from(providers).orderBy(desc(providers.createdAt));
+  } catch (error) {
+    logReadError('getAllProviders', error);
+    return [];
+  }
 }
 
 export async function getProviderBySlug(slug: string) {
-  const rows = await getDb().select().from(providers).where(eq(providers.slug, slug)).limit(1);
-  return rows[0] ?? null;
+  try {
+    const rows = await getDb().select().from(providers).where(eq(providers.slug, slug)).limit(1);
+    return rows[0] ?? null;
+  } catch (error) {
+    logReadError('getProviderBySlug', error);
+    return null;
+  }
 }
 
 export async function searchProviders(query: string, area?: string, hotelVisits?: string, featured?: string) {
@@ -41,18 +60,28 @@ export async function searchProviders(query: string, area?: string, hotelVisits?
   if (hotelVisits) filters.push(eq(providers.hotelVisits, hotelVisits === 'yes' ? 1 : 0));
   if (featured) filters.push(eq(providers.featured, featured === 'yes' ? 1 : 0));
 
-  return getDb()
-    .select()
-    .from(providers)
-    .where(filters.length ? and(...filters) : undefined)
-    .orderBy(desc(providers.featured), providers.name);
+  try {
+    return await getDb()
+      .select()
+      .from(providers)
+      .where(filters.length ? and(...filters) : undefined)
+      .orderBy(desc(providers.featured), providers.name);
+  } catch (error) {
+    logReadError('searchProviders', error);
+    return [];
+  }
 }
 
 export async function listAreas() {
-  const rows = await getDb().select({ areas: providers.areasServedJson }).from(providers);
-  const areas = new Set<string>();
-  for (const row of rows) {
-    parseJsonArray(row.areas).forEach((a) => areas.add(a));
+  try {
+    const rows = await getDb().select({ areas: providers.areasServedJson }).from(providers);
+    const areas = new Set<string>();
+    for (const row of rows) {
+      parseJsonArray(row.areas).forEach((a) => areas.add(a));
+    }
+    return [...areas];
+  } catch (error) {
+    logReadError('listAreas', error);
+    return [];
   }
-  return [...areas];
 }
