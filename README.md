@@ -39,8 +39,8 @@ SEO-first mobile IV therapy directory for Las Vegas built with Next.js App Route
 2. Build command: `npm run build`
 3. Output: default Next.js output (no custom setting needed).
 4. Set environment variables in Vercel project settings:
-   - `DATABASE_URL`
-   - `DATABASE_AUTH_TOKEN` (only for remote Turso/libSQL)
+   - `DATABASE_URL` (or `TURSO_DATABASE_URL`)
+   - `DATABASE_AUTH_TOKEN` (or `TURSO_AUTH_TOKEN`, only for remote Turso/libSQL)
    - `ADMIN_PASSWORD`
    - `RESEND_API_KEY`
    - `SITE_OWNER_EMAIL`

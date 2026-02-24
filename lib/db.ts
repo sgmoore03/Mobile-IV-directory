@@ -9,7 +9,7 @@ export const getDb = () => {
 
   const env = getAppEnv();
   const url = env.DATABASE_URL;
-  if (!url) throw new Error('DATABASE_URL is missing.');
+  if (!url) throw new Error('Database URL is missing. Set DATABASE_URL (or TURSO_DATABASE_URL/LIBSQL_URL).');
 
   const client = createClient({
     url,
